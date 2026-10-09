@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>theoz · Minecraft Mod Developer</title>
+  <meta name="description" content="Minecraft mod developer crafting immersive gameplay systems — radios, batteries, physics-based cables, and server networks." />
+  <meta name="theme-color" content="#080808" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="theoz · Minecraft Mod Developer" />
+  <meta property="og:description" content="Minecraft mod developer crafting immersive gameplay systems." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #080808;
+      --bg2:         #0d0d0f;
+      --surface:     #111114;
+      --surface2:    #17171c;
+      --border:      #1f1f26;
+      --border2:     #2b2b36;
+      --gold:        #d4af37;
+      --gold-light:  #f3d375;
+      --gold-dim:    #7a6120;
+      --gold-glow:   rgba(212, 175, 55, 0.25);
+      --white:       #f4f4f7;
+      --muted:       #7c7c8c;
+      --muted2:      #4a4a58;
+      --green:       #3ecf6e;
+      --radius:      12px;
+      --font-mono:   'JetBrains Mono', monospace;
+      --font-sans:   'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Subtle tech grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(212,175,55,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,175,55,.025) 1px, transparent 1px);
+      background-size: 54px 54px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+    h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      margin-bottom: 34px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    h2::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--gold-dim), transparent);
+    }
+    h3 { font-size: 1.05rem; font-weight: 600; color: var(--white); }
+    p  { color: var(--muted); }
+    a  { color: var(--gold); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--gold-light); }
+
+    /* ── Navigation ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 50px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo .bracket { color: var(--gold); }
+
+    .blink {
+      animation: blink 1.1s step-end infinite;
+      color: var(--gold);
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── Hero Section (Two-Column Layout) ── */
+    .hero {
+      padding: 40px 0 100px;
+      border-top: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 40px;
+      align-items: center;
+      min-height: 560px;
+    }
+
+    .hero-left {
+      max-width: 580px;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--green);
+      background: rgba(62,207,110,.08);
+      border: 1px solid rgba(62,207,110,.25);
+      border-radius: 100px;
+      padding: 5px 15px;
+      margin-bottom: 24px;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .hero h1 { margin-bottom: 22px; }
+    .gold-text {
+      color: var(--gold);
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.08rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 38px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all .25s ease;
+      cursor: pointer;
+      letter-spacing: .01em;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: #080808;
+      border: 1.5px solid var(--gold);
+      box-shadow: 0 4px 20px rgba(212,175,55,0.25);
+    }
+    .btn-gold:hover {
+      background: var(--gold-light);
+      border-color: var(--gold-light);
+      color: #080808;
+      box-shadow: 0 6px 28px rgba(212,175,55,0.4);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: rgba(17,17,20,0.6);
+      color: var(--white);
+      border: 1.5px solid var(--border2);
+      backdrop-filter: blur(8px);
+    }
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .hero-tags-strip {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .hero-tags-strip span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-tags-strip .dot {
+      width: 4px; height: 4px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+
+    /* ── Hero Right: Rotating Planet System ── */
+    .hero-right {
+      position: relative;
+      width: 100%;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .planet-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #planet-canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      cursor: grab;
+    }
+    #planet-canvas:active { cursor: grabbing; }
+
+    .planet-hint {
+      position: absolute;
+      bottom: 8px;
+      right: 14px;
+      font-size: 0.72rem;
+      color: var(--muted2);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .planet-hint::before {
+      content: '✦';
+      color: var(--gold);
+    }
+
+    /* ── Section Dividers ── */
+    section {
+      padding: 84px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── About Section ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .about-text p + p { margin-top: 16px; }
+
+    .skills-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 11px;
+      transition: all .2s;
+    }
+    .skill-tag:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: var(--surface2);
+      transform: translateY(-1px);
+    }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 14px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .stat-box:hover { border-color: var(--gold-dim); }
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .stat-num {
+      font-family: var(--font-mono);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-lbl { font-size: 0.74rem; color: var(--muted); }
+
+    /* ── Projects Grid ── */
+    .projects-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color .25s, transform .25s;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        400px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(212,175,55,.06), transparent 45%
+      );
+      pointer-events: none;
+    }
+    .project-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-2px);
+    }
+
+    .project-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .project-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .project-icon { font-size: 1.3rem; }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-done  { background: rgba(62,207,110,.1);  color: #3ecf6e; border: 1px solid rgba(62,207,110,.25); }
+    .badge-wip   { background: rgba(212,175,55,.1);  color: var(--gold); border: 1px solid rgba(212,175,55,.25); }
+    .badge-soon  { background: rgba(167,139,250,.1); color: #a78bfa; border: 1px solid rgba(167,139,250,.25); }
+
+    .project-desc {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.65;
+    }
+
+    .project-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 3px 9px;
+    }
+
+    /* ── Servers Sections ── */
+    .servers-list { display: grid; gap: 16px; }
+
+    .server-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 22px;
+      align-items: start;
+      transition: border-color .25s, transform .25s;
+      position: relative;
+      overflow: hidden;
+      color: inherit;
+    }
+    .server-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .server-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+    .server-card:hover::before { opacity: 1; }
+
+    .server-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      border: 2px solid var(--border2);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .server-body { min-width: 0; }
+
+    .server-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .server-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .server-role {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--gold);
+      background: rgba(212,175,55,.1);
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 100px;
+      padding: 2px 10px;
+    }
+
+    .server-stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .server-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .server-stat-num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--white);
+      font-size: 0.9rem;
+    }
+
+    .dot-online {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      display: inline-block;
+    }
+
+    .server-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .server-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #5865F2;
+      background: rgba(88,101,242,.08);
+      border: 1px solid rgba(88,101,242,.2);
+      border-radius: 8px;
+      padding: 7px 16px;
+      transition: all .2s;
+    }
+    .server-link-btn:hover {
+      background: rgba(88,101,242,.18);
+      border-color: rgba(88,101,242,.5);
+      color: #7289da;
+    }
+
+    /* ── SOON Server Card ── */
+    .server-card-soon {
+      border: 1px dashed var(--border2);
+      background: rgba(17,17,20,0.5);
+    }
+    .server-card-soon:hover {
+      border-color: var(--gold-dim);
+    }
+    .server-icon-soon {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      border: 2px dashed var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      color: var(--gold);
+      font-size: 1.8rem;
+    }
+    .badge-soon-pill {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--gold);
+      background: rgba(212,175,55,.12);
+      border: 1px solid rgba(212,175,55,.3);
+      padding: 3px 12px;
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-soon-pill::before {
+      content: '●';
+      color: var(--gold);
+      font-size: 0.6rem;
+      animation: pulse 1.8s infinite;
+    }
+
+    /* ── Contact Section ── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .contact-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      color: var(--white);
+      transition: border-color .2s, transform .2s;
+    }
+    .contact-card:hover {
+      border-color: var(--gold-dim);
+      transform: translateY(-2px);
+    }
+
+    .contact-icon {
+      width: 46px; height: 46px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .contact-lbl { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+    .contact-val { font-weight: 600; font-size: 0.95rem; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 38px 0;
+      text-align: center;
+    }
+    footer p { font-size: 0.85rem; color: var(--muted); }
+    footer .gold-text { color: var(--gold); font-weight: 600; }
+
+    /* ── Responsive Queries ── */
+    @media (max-width: 980px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        gap: 30px;
+      }
+      .hero-right {
+        height: 480px;
+      }
+      .projects-list {
+        grid-template-columns: 1fr;
+      }
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      nav { flex-direction: column; gap: 16px; }
+      .nav-links { gap: 20px; }
+      .hero-right { height: 400px; }
+      .stats-row { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .server-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- ── Navigation ── -->
+  <nav>
+    <div class="nav-logo">
+      <span class="bracket">[</span>theoz<span class="blink">_</span><span class="bracket">]</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#servers-built">Servers I Built</a></li>
+      <li><a href="#servers-building">Servers I'm Building</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero Section (1: Text on Left, 2: Planet on Right) ── -->
+  <section class="hero">
+    <div class="hero-grid">
+
+      <!-- LEFT SIDE (Area 1) -->
+      <div class="hero-left">
+        <div class="hero-badge">Available for collaboration</div>
+        <h1>Hi, I'm <span class="gold-text">theoz</span> —<br>Minecraft Mod Developer</h1>
+        <p class="hero-desc">
+          I build immersive Minecraft mods from scratch — custom 3D item models,
+          interactive block entities, real-time physics cables, and robust server architectures.
+          Every block tells a story.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-gold" href="#projects">View Projects</a>
+          <a class="btn btn-outline" href="https://guns.lol/theoz" target="_blank" rel="noopener">guns.lol/theoz ↗</a>
+        </div>
+
+        <div class="hero-tags-strip">
+          <span><i class="dot"></i> Forge 1.20.1</span>
+          <span><i class="dot"></i> 3D Voxel Models</span>
+          <span><i class="dot"></i> Real-time Physics</span>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE (Area 2: Interactive 3D Spinning Planet with Mod Orbits) -->
+      <div class="hero-right">
+        <div class="planet-wrapper">
+          <canvas id="planet-canvas" width="600" height="560"></canvas>
+          <div class="planet-hint">Interactive · Drag to rotate orbits</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── About Section ── -->
+  <section id="about">
+    <h2>About me</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          I'm <strong style="color:var(--white)">theoz</strong>, an independent Minecraft mod developer
+          specializing in crafting realistic, high-fidelity systems using the
+          <strong style="color:var(--gold)">Forge 1.20.1</strong> platform.
+        </p>
+        <p>
+          I architect every layer myself: from custom 3D voxel models and PBR-inspired textures,
+          to complex multi-packet client/server state machines and volumetric mathematical renderers.
+          My goal is to make every feature feel natural and deeply integrated into vanilla Minecraft.
+        </p>
+        <p>
+          Beyond client mods, I also engineer custom server game modes and high-capacity networks,
+          managing setups from scratch with thousands of unique player interactions.
+        </p>
+      </div>
+
+      <div>
+        <div class="skills-label">Skills &amp; Tech Stack</div>
+        <div class="skills-grid">
+          <span class="skill-tag">Java 17</span>
+          <span class="skill-tag">Minecraft Forge</span>
+          <span class="skill-tag">Block Entities</span>
+          <span class="skill-tag">Custom Renderers</span>
+          <span class="skill-tag">Network Packets</span>
+          <span class="skill-tag">3D Voxel Modeling</span>
+          <span class="skill-tag">Atlas UV Textures</span>
+          <span class="skill-tag">Client Prediction</span>
+          <span class="skill-tag">JSON Models</span>
+          <span class="skill-tag">Server Architecture</span>
+          <span class="skill-tag">BoxPvP Engines</span>
+          <span class="skill-tag">Gradle</span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num">1</div>
+            <div class="stat-lbl">Released Mod</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">4+</div>
+            <div class="stat-lbl">Core Mechanics</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">2</div>
+            <div class="stat-lbl">Networks Built</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Projects Section ── -->
+  <section id="projects">
+    <h2>Featured Projects</h2>
+    <div class="projects-list">
+
+      <!-- RadioMod -->
+      <div class="project-card">
+        <div>
+          <div class="project-top">
+            <div class="project-name">
+              <span class="project-icon">📻</span>
+              <h3>RadioMod — Walkie-Talkie System</h3>
+            </div>
+            <span class="badge badge-done">Released</span>
+          </div>
+          <p class="project-desc">
+            A comprehensive communication mod featuring a custom 3D walkie-talkie with an LCD screen,
+            dynamic wearable chest holster, frequencies from 1.000 to 999.975 MHz, security codes,
+            and an instant SOS beacon that relays player coordinates across the dimension.
+          </p>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Forge 1.20.1</span>
+          <span class="tag">Java</span>
+          <span class="tag">3D Voxel Model</span>
+          <span class="tag">Multiplayer</span>
+          <span class="tag">Custom GUI</span>
+        </div>
+      </div>
+
+      <!-- Battery Charger -->
+      <div class="project-card">
+        <div>
+          <div class="project-top">
+            <div class="project-name">
+              <span class="project-icon">🔋</span>
+              <h3>Battery Charger &amp; 3D Physics Cable</h3>
+            </div>
+            <span class="badge badge-done">Released</span>
+          </div>
+          <p class="project-desc">
+            A Li-Ion battery docking station with a real-time volumetric 3D cable.
+            The cable extends dynamically from the charger to your hand in both first-person and
+            third-person views. Plugs into wall outlets up to 3 blocks away and auto-retracts when unplugged.
+          </p>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Block Entity</span>
+          <span class="tag">Volumetric Render</span>
+          <span class="tag">First-Person View</span>
+          <span class="tag">Client Prediction</span>
+          <span class="tag">NBT Packets</span>
+        </div>
+      </div>
+
+      <!-- Wall Socket -->
+      <div class="project-card">
+        <div>
+          <div class="project-top">
+            <div class="project-name">
+              <span class="project-icon">🔌</span>
+              <h3>Wall Socket — 230V Mountable Outlet</h3>
+            </div>
+            <span class="badge badge-done">Released</span>
+          </div>
+          <p class="project-desc">
+            Human-scale, realistic 230V electrical socket mounting flush on any vertical block face.
+            Powers connected battery chargers, turning indicator LEDs from charging red to fully-charged emerald green with audio-visual cues.
+          </p>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Directional Block</span>
+          <span class="tag">State Sync</span>
+          <span class="tag">Custom VoxelShape</span>
+          <span class="tag">Audio Events</span>
+        </div>
+      </div>
+
+      <!-- Upcoming Mods -->
+      <div class="project-card">
+        <div>
+          <div class="project-top">
+            <div class="project-name">
+              <span class="project-icon">🛠️</span>
+              <h3>Next-Gen Mods — In Development</h3>
+            </div>
+            <span class="badge badge-wip">Coming Soon</span>
+          </div>
+          <p class="project-desc">
+            Upcoming systems covering industrial electricity networks, automated apparatus,
+            and immersive survival gadgets. Designed with high modularity and clean multiplayer performance in mind.
+          </p>
+        </div>
+        <div class="project-tags">
+          <span class="tag">Industrial</span>
+          <span class="tag">Power Grid</span>
+          <span class="tag">Automation</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Servers I Built Section ── -->
+  <section id="servers-built">
+    <h2>Servers I Built</h2>
+    <div class="servers-list">
+
+      <div class="server-card">
+        <img
+          class="server-icon"
+          src="https://cdn.discordapp.com/icons/1451859126907965634/6b722434ac53b6c675160124762ea30e.png?size=128"
+          alt="HeartSMP Icon"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2268%22 height=%2268%22><rect width=%2268%22 height=%2268%22 rx=%2218%22 fill=%22%23111%22/><text x=%2234%22 y=%2246%22 font-size=%2228%22 text-anchor=%22middle%22 fill=%22%23d4af37%22>❤</text></svg>'"
+        />
+        <div class="server-body">
+          <div class="server-header">
+            <span class="server-name">HeartSMP</span>
+            <span class="server-role">Founder &amp; Lead Developer</span>
+          </div>
+
+          <div class="server-stats">
+            <div class="server-stat">
+              <span class="server-stat-num">1,076</span>
+              <span>Discord members</span>
+            </div>
+            <div class="server-stat">
+              <span class="dot-online"></span>
+              <span class="server-stat-num">14</span>
+              <span>online now</span>
+            </div>
+            <div class="server-stat">
+              <span style="color:var(--gold); font-weight:700;">~50</span>
+              <span style="margin-left:4px;">daily active players</span>
+            </div>
+          </div>
+
+          <p class="server-desc">
+            I designed, built, and configured HeartSMP completely from scratch — handling infrastructure deployment,
+            custom plugin pipelines, economy balance, and community operations. The server featured a fast-paced
+            <strong style="color:var(--white)">BoxPvP</strong> game mode where players battle, unlock loot crates,
+            upgrade custom armor tiers, and climb competitive leaderboards. At peak activity, HeartSMP sustained an
+            average of <strong style="color:var(--gold)">50+ active players daily</strong>.
+          </p>
+
+          <a
+            class="server-link-btn"
+            href="https://discord.gg/mxb9NpvnV"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+            Join HeartSMP Discord (1,076 Members)
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Servers I'm Building Section ── -->
+  <section id="servers-building">
+    <h2>Servers I'm Building</h2>
+    <div class="servers-list">
+
+      <div class="server-card">
+        <img
+          class="server-icon"
+          src="https://cdn.discordapp.com/icons/1525654049309986946/e3f9d5215b9c9a65829a0e27f7f3e49d.png?size=128"
+          alt="LeafVanilla Network Icon"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2268%22 height=%2268%22><rect width=%2268%22 height=%2268%22 rx=%2218%22 fill=%22%23111%22/><text x=%2234%22 y=%2246%22 font-size=%2228%22 text-anchor=%22middle%22 fill=%22%233ecf6e%22>🍃</text></svg>'"
+        />
+        <div class="server-body">
+          <div class="server-header">
+            <span class="server-name">LeafVanilla [1.21+] Network</span>
+            <span class="badge-soon-pill">IN ACTIVE DEVELOPMENT</span>
+          </div>
+
+          <div class="server-stats">
+            <div class="server-stat">
+              <span class="server-stat-num">136</span>
+              <span>Discord members</span>
+            </div>
+            <div class="server-stat">
+              <span class="dot-online"></span>
+              <span class="server-stat-num">46</span>
+              <span>online now</span>
+            </div>
+            <div class="server-stat">
+              <span style="color:var(--gold); font-weight:700;">1.21+</span>
+              <span style="margin-left:4px;">Vanilla+ Network</span>
+            </div>
+          </div>
+
+          <p class="server-desc">
+            A modern, high-performance Minecraft 1.21+ community network currently under active construction and configuration.
+            Engineered with fine-tuned server performance, vanilla-enhanced gameplay mechanics, customized progression,
+            and a clean, community-centric environment.
+          </p>
+
+          <a
+            class="server-link-btn"
+            href="https://discord.gg/4zCTMnca2"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+            Join LeafVanilla Discord (136 Members)
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Contact Section ── -->
+  <section id="contact">
+    <h2>Get in touch</h2>
+    <p style="margin-bottom:30px; max-width:540px;">
+      Looking to build a custom mod, configure server architecture, or collaborate on game mechanics?
+      Send a message on Discord — I'm always open to new projects.
+    </p>
+    <div class="contact-grid">
+      <a class="contact-card" href="https://discord.com/users/theoz17_12" target="_blank" rel="noopener">
+        <div class="contact-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#5865F2">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="contact-lbl">Direct Message</div>
+          <div class="contact-val">Discord: theoz17_12</div>
+        </div>
+      </a>
+
+      <a class="contact-card" href="https://guns.lol/theoz" target="_blank" rel="noopener">
+        <div class="contact-icon">🔗</div>
+        <div>
+          <div class="contact-lbl">Verified Links &amp; Profiles</div>
+          <div class="contact-val">guns.lol/theoz</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <p>Crafted by <span class="gold-text">theoz</span> · Minecraft Mod Developer &amp; Systems Engineer</p>
+    <p style="margin-top:8px;">
+      <a href="https://discord.gg/mxb9NpvnV" target="_blank" rel="noopener" style="color:var(--muted2); font-size:.82rem;">HeartSMP Community</a>
+      &nbsp;·&nbsp;
+      <a href="https://guns.lol/theoz" target="_blank" rel="noopener" style="color:var(--muted2); font-size:.82rem;">guns.lol/theoz</a>
+    </p>
+  </footer>
+
+</div>
+
+<!-- ── Interactive 3D Spinning Planet System ── -->
+<script>
+  (function initCelestialOrb() {
+    const canvas = document.getElementById('planet-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width;
+    let height = canvas.height;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      width = rect.width;
+      height = rect.height;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Orbital celestial bodies (The Mods & Networks)
+    const orbitItems = [
+      { name: 'RadioMod', icon: '📻', tag: 'Walkie-Talkie', orbitRadius: 215, speed: 0.0075, angle: 0, ringIndex: 0 },
+      { name: '3D Physics Cable', icon: '⚡', tag: 'Volumetric', orbitRadius: 215, speed: 0.0075, angle: Math.PI, ringIndex: 0 },
+      { name: 'LeafVanilla', icon: '🍃', tag: '1.21+ Network', orbitRadius: 165, speed: -0.010, angle: Math.PI * 0.4, ringIndex: 1 },
+      { name: 'Battery Dock', icon: '🔋', tag: 'Li-Ion Charger', orbitRadius: 165, speed: -0.010, angle: Math.PI * 1.4, ringIndex: 1 },
+      { name: 'HeartSMP Core', icon: '❤', tag: 'BoxPvP', orbitRadius: 255, speed: 0.006, angle: Math.PI * 0.8, ringIndex: 2 },
+      { name: '230V Wall Socket', icon: '🔌', tag: 'Mountable', orbitRadius: 255, speed: 0.006, angle: Math.PI * 1.8, ringIndex: 2 }
+    ];
+
+    // Background floating gold embers / stars
+    const stars = Array.from({ length: 48 }, () => ({
+      x: Math.random() * 600,
+      y: Math.random() * 560,
+      size: Math.random() * 1.6 + 0.5,
+      alpha: Math.random() * 0.7 + 0.2,
+      pulseSpeed: Math.random() * 0.03 + 0.01
+    }));
+
+    let sphereSpinAngle = 0;
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let currentTiltX = 0;
+    let currentTiltY = 0;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    // Mouse drag & tilt interaction
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / rect.width - 0.5;
+      const my = (e.clientY - rect.top) / rect.height - 0.5;
+
+      if (isDragging) {
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        targetTiltY += dx * 0.005;
+        targetTiltX += dy * 0.005;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+      } else {
+        targetTiltX = my * 0.35;
+        targetTiltY = mx * 0.45;
+      }
+    });
+
+    const planetRadius = 78;
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // Smooth camera tilt damping
+      currentTiltX += (targetTiltX - currentTiltX) * 0.08;
+      currentTiltY += (targetTiltY - currentTiltY) * 0.08;
+
+      sphereSpinAngle += 0.008;
+
+      // Draw background gold star dust
+      stars.forEach(s => {
+        s.alpha += Math.sin(sphereSpinAngle * 2 + s.pulseSpeed) * 0.005;
+        const a = Math.max(0.1, Math.min(0.9, s.alpha));
+        ctx.fillStyle = `rgba(212, 175, 55, ${a})`;
+        ctx.beginPath();
+        ctx.arc((s.x / 600) * width, (s.y / 560) * height, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Rings inclination properties
+      const rings = [
+        { rx: 215, ry: 75, angle: -0.28 + currentTiltX * 0.5 },
+        { rx: 165, ry: 58, angle: 0.22 + currentTiltX * 0.4 },
+        { rx: 255, ry: 88, angle: -0.12 + currentTiltX * 0.6 }
+      ];
+
+      // Calculate 3D positions of all mod orbit items
+      const projectedItems = orbitItems.map(item => {
+        item.angle += item.speed;
+        const ring = rings[item.ringIndex];
+
+        // 3D elliptical coordinates before inclination
+        const cosA = Math.cos(item.angle);
+        const sinA = Math.sin(item.angle);
+
+        const x0 = cosA * ring.rx;
+        const y0 = sinA * ring.ry;
+
+        // Apply ring tilt angle in 2D
+        const rot = ring.angle + currentTiltY * 0.3;
+        const px = cx + x0 * Math.cos(rot) - y0 * Math.sin(rot);
+        const py = cy + x0 * Math.sin(rot) + y0 * Math.cos(rot);
+
+        // Z-depth for sorting (sinA determines front/back)
+        const zDepth = sinA;
+
+        return { ...item, px, py, zDepth };
+      });
+
+      // Split into back items and front items
+      const backItems = projectedItems.filter(i => i.zDepth < 0);
+      const frontItems = projectedItems.filter(i => i.zDepth >= 0);
+
+      // ── 1. Draw back half of orbit rings ──
+      rings.forEach(ring => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(ring.angle + currentTiltY * 0.3);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, ring.rx, ring.ry, 0, Math.PI, Math.PI * 2); // back half
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)';
+        ctx.setLineDash([4, 6]);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // ── 2. Draw back orbit mod cards ──
+      backItems.forEach(item => drawModBadge(ctx, item, false));
+
+      // ── 3. Draw The Central Celestial Planet (Sphere) ──
+      // Outer atmospheric aura
+      const auraGrad = ctx.createRadialGradient(cx, cy, planetRadius * 0.8, cx, cy, planetRadius * 1.6);
+      auraGrad.addColorStop(0, 'rgba(212, 175, 55, 0.25)');
+      auraGrad.addColorStop(0.5, 'rgba(212, 175, 55, 0.08)');
+      auraGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, planetRadius * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Planet main body (Deep Charcoal Sphere with Golden Rim)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, planetRadius, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Base shading
+      const planetGrad = ctx.createRadialGradient(
+        cx - planetRadius * 0.35, cy - planetRadius * 0.4, planetRadius * 0.1,
+        cx, cy, planetRadius
+      );
+      planetGrad.addColorStop(0, '#2b2313');
+      planetGrad.addColorStop(0.4, '#141416');
+      planetGrad.addColorStop(0.85, '#09090b');
+      planetGrad.addColorStop(1, '#050506');
+      ctx.fillStyle = planetGrad;
+      ctx.fillRect(cx - planetRadius, cy - planetRadius, planetRadius * 2, planetRadius * 2);
+
+      // Rotating wireframe grid lines (Latitude & Longitude)
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.22)';
+      ctx.lineWidth = 1;
+
+      // Longitude lines spinning around planet
+      for (let i = 0; i < 8; i++) {
+        const lineAngle = sphereSpinAngle + (i * Math.PI) / 4;
+        const xOffset = Math.sin(lineAngle) * planetRadius;
+        const scaleX = Math.cos(lineAngle);
+
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, Math.abs(xOffset), planetRadius, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Latitude lines
+      for (let lat = -2; lat <= 2; lat++) {
+        const yOff = (lat * planetRadius) / 3;
+        const radX = Math.sqrt(Math.max(0, planetRadius * planetRadius - yOff * yOff));
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + yOff, radX, radX * 0.26, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Golden Equator Ring glow across planet face
+      ctx.strokeStyle = 'rgba(243, 211, 117, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, planetRadius, planetRadius * 0.22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
+
+      // Golden Rim highlight around planet silhouette
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.75)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, planetRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Inner Core Glow icon in center of planet
+      ctx.fillStyle = 'rgba(243, 211, 117, 0.9)';
+      ctx.font = '700 12px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CORE · THEOZ', cx, cy);
+
+      // ── 4. Draw front half of orbit rings ──
+      rings.forEach(ring => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(ring.angle + currentTiltY * 0.3);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, ring.rx, ring.ry, 0, 0, Math.PI); // front half
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // ── 5. Draw front orbit mod cards ──
+      frontItems.forEach(item => drawModBadge(ctx, item, true));
+
+      requestAnimationFrame(render);
+    }
+
+    // Helper: Render modern tech capsule badge along orbit line
+    function drawModBadge(ctx, item, isFront) {
+      const { px, py, name, icon, tag } = item;
+      const alpha = isFront ? 1.0 : 0.45;
+      const scale = isFront ? 1.0 : 0.85;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.scale(scale, scale);
+
+      // Orbit connector dot
+      ctx.fillStyle = isFront ? '#d4af37' : '#7a6120';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (isFront) {
+        ctx.strokeStyle = 'rgba(212,175,55,0.8)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Badge Card Box
+      const text = `${icon} ${name}`;
+      ctx.font = '600 12px "Inter", sans-serif';
+      const textW = ctx.measureText(text).width;
+      const boxW = textW + 28;
+      const boxH = 30;
+
+      const bx = -boxW / 2;
+      const by = isFront ? 12 : -38;
+
+      // Background pill
+      ctx.fillStyle = `rgba(17, 17, 20, ${isFront ? 0.92 : 0.75})`;
+      ctx.strokeStyle = isFront ? 'rgba(212, 175, 55, 0.65)' : 'rgba(122, 97, 32, 0.4)';
+      ctx.lineWidth = 1;
+
+      // Rounded rect pill
+      const r = 8;
+      ctx.beginPath();
+      ctx.moveTo(bx + r, by);
+      ctx.lineTo(bx + boxW - r, by);
+      ctx.quadraticCurveTo(bx + boxW, by, bx + boxW, by + r);
+      ctx.lineTo(bx + boxW, by + boxH - r);
+      ctx.quadraticCurveTo(bx + boxW, by + boxH, bx + boxW - r, by + boxH);
+      ctx.lineTo(bx + r, by + boxH);
+      ctx.quadraticCurveTo(bx, by + boxH, bx, by + boxH - r);
+      ctx.lineTo(bx, by + r);
+      ctx.quadraticCurveTo(bx, by, bx + r, by);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Text inside pill
+      ctx.fillStyle = isFront ? '#f4f4f7' : '#a0a0ad';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 0, by + boxH / 2);
+
+      ctx.restore();
+    }
+
+    render();
+  })();
+
+  // Card cursor light glow effect
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+</script>
+</body>
+</html>
